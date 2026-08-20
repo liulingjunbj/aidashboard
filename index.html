@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI 驾驶舱智能助手 · 演示入口</title>
+  <style>
+    :root {
+      --ink: #162038;
+      --sub: #62708c;
+      --line: rgba(89, 113, 158, .16);
+      --blue: #377cf6;
+      --cyan: #36b9e9;
+      --violet: #7766f6;
+      --paper: rgba(255, 255, 255, .78);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { margin: 0; min-height: 100%; }
+
+    body {
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background:
+        radial-gradient(circle at 12% 13%, rgba(85, 183, 255, .23), transparent 25%),
+        radial-gradient(circle at 88% 12%, rgba(124, 102, 246, .18), transparent 27%),
+        linear-gradient(145deg, #f8fbff 0%, #f4f7ff 48%, #f9f7ff 100%);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .52;
+      background-image: radial-gradient(rgba(58, 92, 151, .14) 1px, transparent 1px);
+      background-size: 28px 28px;
+      mask-image: linear-gradient(to bottom, #000, transparent 82%);
+    }
+
+    .shell {
+      position: relative;
+      z-index: 1;
+      width: min(1220px, calc(100% - 64px));
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 38px 0 34px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: .03em;
+    }
+
+    .brand-mark {
+      position: relative;
+      width: 38px;
+      height: 38px;
+      border-radius: 13px;
+      background: linear-gradient(145deg, var(--blue), var(--violet));
+      box-shadow: 0 10px 24px rgba(74, 106, 235, .28);
+    }
+
+    .brand-mark::before,
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      background: white;
+      border-radius: 10px 2px 10px 2px;
+    }
+
+    .brand-mark::before { width: 10px; height: 22px; left: 9px; top: 8px; }
+    .brand-mark::after { width: 16px; height: 8px; right: 7px; top: 8px; }
+
+    .hero {
+      padding: 70px 0 42px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(340px, .7fr);
+      gap: 64px;
+      align-items: end;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border: 1px solid rgba(55, 124, 246, .17);
+      border-radius: 999px;
+      color: #376ed2;
+      background: rgba(255, 255, 255, .56);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .eyebrow i {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #3ed5cd;
+      box-shadow: 0 0 0 5px rgba(62, 213, 205, .12);
+    }
+
+    h1 {
+      max-width: 760px;
+      margin: 22px 0 20px;
+      font-size: clamp(44px, 5vw, 72px);
+      line-height: 1.08;
+      letter-spacing: -.055em;
+    }
+
+    h1 span {
+      color: transparent;
+      background: linear-gradient(92deg, #2879ef, #35b7de 48%, #735ff4);
+      background-clip: text;
+      -webkit-background-clip: text;
+    }
+
+    .lead {
+      max-width: 700px;
+      margin: 0;
+      color: var(--sub);
+      font-size: 18px;
+      line-height: 1.85;
+    }
+
+    .promise {
+      padding: 24px 26px;
+      border: 1px solid rgba(255, 255, 255, .82);
+      border-radius: 26px;
+      background: rgba(255, 255, 255, .48);
+      box-shadow: 0 24px 60px rgba(72, 96, 143, .09);
+      backdrop-filter: blur(16px);
+    }
+
+    .promise strong { display: block; margin-bottom: 16px; font-size: 15px; }
+
+    .promise-list { display: grid; gap: 14px; }
+
+    .promise-item {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 11px;
+      align-items: center;
+    }
+
+    .promise-item b {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      color: #3175e7;
+      border-radius: 11px;
+      background: #eef5ff;
+      font-size: 14px;
+    }
+
+    .promise-item span { color: #53617b; font-size: 14px; line-height: 1.55; }
+
+    .entry-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      margin: 4px 0 18px;
+    }
+
+    .entry-head h2 { margin: 0 0 5px; font-size: 22px; }
+    .entry-head p { margin: 0; color: #7b879e; font-size: 14px; }
+
+    .entries {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .entry {
+      position: relative;
+      min-height: 250px;
+      padding: 30px;
+      color: inherit;
+      text-decoration: none;
+      border: 1px solid rgba(255, 255, 255, .86);
+      border-radius: 28px;
+      background: var(--paper);
+      box-shadow: 0 18px 54px rgba(66, 93, 145, .11);
+      overflow: hidden;
+      transition: transform .28s ease, box-shadow .28s ease, border-color .28s ease;
+    }
+
+    .entry::before {
+      content: "";
+      position: absolute;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      right: -90px;
+      top: -110px;
+      background: var(--glow);
+      filter: blur(3px);
+      opacity: .65;
+    }
+
+    .entry:hover {
+      transform: translateY(-6px);
+      border-color: rgba(72, 126, 242, .25);
+      box-shadow: 0 28px 72px rgba(66, 93, 145, .18);
+    }
+
+    .entry-one { --accent: #2f81f6; --glow: rgba(62, 174, 255, .16); }
+    .entry-two { --accent: #496bf2; --glow: rgba(76, 115, 246, .28); }
+    .entry-three { --accent: #20a99c; --glow: rgba(35, 203, 184, .2); }
+
+    .entry-primary {
+      grid-column: 1 / -1;
+      min-height: 290px;
+      padding: 34px 38px;
+      border-color: rgba(82, 118, 240, .2);
+      background:
+        linear-gradient(112deg, rgba(255, 255, 255, .92), rgba(242, 246, 255, .84)),
+        var(--paper);
+      box-shadow: 0 24px 70px rgba(67, 99, 192, .16);
+    }
+
+    .entry-primary::after {
+      content: "";
+      position: absolute;
+      right: 44px;
+      bottom: -90px;
+      width: 290px;
+      height: 180px;
+      border-radius: 50%;
+      border: 1px solid rgba(77, 111, 239, .14);
+      box-shadow:
+        0 0 0 24px rgba(71, 119, 243, .045),
+        0 0 0 52px rgba(71, 119, 243, .025);
+      transform: rotate(-12deg);
+    }
+
+    .entry-primary .entry-icon {
+      width: 62px;
+      height: 62px;
+      border-radius: 20px;
+      font-size: 28px;
+    }
+
+    .entry-primary h3 { margin-top: 24px; font-size: 31px; }
+    .entry-primary p { max-width: 680px; font-size: 16px; }
+    .entry-primary .entry-foot { left: 38px; right: 38px; }
+
+    .entry-secondary {
+      min-height: 244px;
+      padding: 26px 28px;
+      background: rgba(255, 255, 255, .66);
+      box-shadow: 0 14px 42px rgba(66, 93, 145, .08);
+    }
+
+    .entry-secondary .entry-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      font-size: 21px;
+      filter: saturate(.8);
+    }
+
+    .entry-secondary h3 { margin-top: 22px; font-size: 23px; }
+    .entry-secondary .entry-foot { left: 28px; right: 28px; bottom: 22px; }
+
+    .entry-top { position: relative; display: flex; justify-content: space-between; align-items: center; }
+
+    .entry-icon {
+      display: grid;
+      place-items: center;
+      width: 54px;
+      height: 54px;
+      color: white;
+      border-radius: 18px;
+      background: linear-gradient(145deg, var(--accent), color-mix(in srgb, var(--accent), #40d6e8 40%));
+      box-shadow: 0 12px 26px color-mix(in srgb, var(--accent), transparent 72%);
+      font-size: 24px;
+    }
+
+    .entry-number { color: color-mix(in srgb, var(--accent), transparent 52%); font-size: 15px; font-weight: 800; }
+
+    .entry h3 { position: relative; margin: 26px 0 11px; font-size: 27px; letter-spacing: -.025em; }
+
+    .entry p {
+      position: relative;
+      max-width: 450px;
+      margin: 0;
+      color: #68758e;
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .entry-foot {
+      position: absolute;
+      left: 30px;
+      right: 30px;
+      bottom: 25px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .entry-foot i {
+      width: 30px;
+      height: 1px;
+      background: currentColor;
+      transition: width .25s ease;
+    }
+
+    .entry:hover .entry-foot i { width: 46px; }
+
+    footer {
+      margin-top: auto;
+      padding-top: 28px;
+      color: #8a95a9;
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    @media (max-width: 860px) {
+      .shell { width: min(100% - 32px, 700px); padding-top: 24px; }
+      .hero { grid-template-columns: 1fr; gap: 28px; padding: 48px 0 34px; }
+      .entries { grid-template-columns: 1fr; }
+      .entry { min-height: 235px; }
+      .entry-primary { grid-column: auto; padding: 30px; }
+      .entry-primary .entry-foot { left: 30px; right: 30px; }
+      footer { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <div class="brand"><span class="brand-mark" aria-hidden="true"></span>学校数据智能驾驶舱</div>
+
+    <section class="hero">
+      <div>
+        <div class="eyebrow"><i></i>统一驾驶舱 · 智能数据助手</div>
+        <h1>一个入口，完成<span>数据查看、问答与汇报</span></h1>
+        <p class="lead">基于标准驾驶舱，让学校管理者用自然语言问数据、生成汇报，并创建持续更新的专题驾驶舱。</p>
+      </div>
+      <aside class="promise" aria-label="项目特点">
+        <strong>飞象 AI 智舱</strong>
+        <div class="promise-list">
+          <div class="promise-item"><b>组</b><span>按已购业务与权限，组合对应驾驶舱</span></div>
+          <div class="promise-item"><b>问</b><span>直接问数据、出结论、生成汇报</span></div>
+          <div class="promise-item"><b>续</b><span>专题驾驶舱连接真实数据，持续更新</span></div>
+        </div>
+      </aside>
+    </section>
+
+    <div class="entry-head">
+      <div><h2>选择演示入口</h2><p>建议从主入口体验完整流程，也可以直接查看驾驶舱方案</p></div>
+    </div>
+
+    <section class="entries" aria-label="演示入口">
+      <a class="entry entry-two entry-primary" href="./correction-mock0430.html">
+        <div class="entry-top"><span class="entry-icon">◇</span><span class="entry-number">主入口</span></div>
+        <h3>从作文 / 作业业务进入</h3>
+        <p>从教师日常业务进入统一 AI 智舱，完整体验数据问答、汇报生成、页面调整与专题驾驶舱创建。</p>
+        <div class="entry-foot"><span>开始完整演示</span><i></i><span>›</span></div>
+      </a>
+
+      <a class="entry entry-one entry-secondary" href="./AI作文全景驾驶舱-核心方案-成长分析中枢.html">
+        <div class="entry-top"><span class="entry-icon">⌁</span><span class="entry-number">快捷入口</span></div>
+        <h3>AI作文全景驾驶舱</h3>
+        <p>直接查看聚焦学生成长与写作进步证据的核心驾驶舱方案。</p>
+        <div class="entry-foot"><span>查看核心方案</span><i></i><span>›</span></div>
+      </a>
+
+      <a class="entry entry-three entry-secondary" href="./region-dashboard.html">
+        <div class="entry-top"><span class="entry-icon">◎</span><span class="entry-number">快捷入口</span></div>
+        <h3>飞象老师校园版</h3>
+        <p>查看区域 AI 教育应用全景，并从真实地图继续下钻学校驾驶舱。</p>
+        <div class="entry-foot"><span>进入区域全景</span><i></i><span>›</span></div>
+      </a>
+    </section>
+
+    <footer>
+      <span>核心能力：问数据 · 生成汇报 · 生成专题驾驶舱 · 精准调整</span>
+      <span>面向校长、教研组长与管理者</span>
+    </footer>
+  </main>
+</body>
+</html>
